@@ -23,12 +23,13 @@ int main()
 	}
 	printf("1. First Come First Serve Scheduling (FCFS)\n2. Round Robin Scheduling (RR)\n\nEnter your choice : ");
 	scanf("%d", &choice);
+	printf("Enter the value of n1 n2 n3: ");
+	scanf("%d %d %d", &n1, &n2, &n3);
 	if (choice == 2) {
-		printf("Enter the value of n1 n2 n3: ");
-		scanf("%d %d %d", &n1, &n2, &n3);
 		printf("Enter time quantum (in microseconds)\n");
 		scanf("%d", &time_quantum);
 	}
+	printf("\n");
 	if (fork()) {
 		if (fork()) {
 			if (fork()) {
@@ -75,7 +76,7 @@ int main()
 									long long int temp = 0;
 									if (i == 1) {
 										read(pfds[i][READ], buffer, 30);
-										printf("M: %s\n", buffer);
+										printf("M: %s\n\n", buffer);
 									} else {
 										read(pfds[i][READ], &temp, sizeof(long long int));
 										printf("M: %lld\n", temp);
@@ -93,6 +94,7 @@ int main()
 			} else {
 				if (choice == 1) {
 					thread_args thread_3_args;
+					thread_3_args.work_load = n3;
 					thread_3_args.pfds[READ] = pfds[2][READ];
 					thread_3_args.pfds[WRITE] = pfds[2][WRITE];
 					thread_3_args.lock = &lock;
@@ -126,6 +128,7 @@ int main()
 		} else {
 			if (choice == 1) {
 				thread_args thread_2_args;
+				thread_2_args.work_load = n2;
 				thread_2_args.pfds[READ] = pfds[1][READ];
 				thread_2_args.pfds[WRITE] = pfds[1][WRITE];
 				thread_2_args.lock = &lock;
@@ -159,6 +162,7 @@ int main()
 	} else {
 		if (choice == 1) {
 			thread_args thread_1_args;
+			thread_1_args.work_load = n1;
 			thread_1_args.pfds[READ] = pfds[0][READ];
 			thread_1_args.pfds[WRITE] = pfds[0][WRITE];
 			thread_1_args.lock = &lock;

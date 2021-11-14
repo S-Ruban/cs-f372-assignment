@@ -52,3 +52,9 @@ Mkfile.old
 dkms.conf
 
 nums-writer.py
+C1_FCFS.txt
+C2_FCFS.txt
+C3_FCFS.txt
+C1_RR.txt
+C2_RR.txt
+C3_RR.txt
