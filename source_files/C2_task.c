@@ -29,7 +29,6 @@ void* C2_task(void* param)
 	printf("Total waiting time for C2 = %lf seconds\n", waiting_time);
 	printf("Total turnaround time for C2 = %lf seconds\n", turnaround_time);
 	file = fopen("C2_FCFS.txt", "a");
-	printf("%d,%lf,%lf\n", c2.work_load, turnaround_time, waiting_time);
 	fprintf(file, "%d,%lf,%lf\n", c2.work_load, turnaround_time, waiting_time);
 	fclose(file);
 
