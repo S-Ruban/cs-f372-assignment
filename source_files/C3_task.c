@@ -29,7 +29,7 @@ void* C3_task(void* param)
 
 	printf("Total waiting time for C3 = %lf seconds\n", waiting_time);
 	printf("Total turnaround time for C3 = %lf seconds\n", turnaround_time);
-	file = fopen("C3_FCFS.txt", "a");
+	file = fopen("C3_FCFS.csv", "a");
 	fprintf(file, "%d,%lf,%lf\n", c3.work_load, turnaround_time, waiting_time);
 	fclose(file);
 
