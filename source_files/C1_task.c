@@ -2,7 +2,6 @@
 
 void* C1_task(void* param)
 {
-	// printf("C1 entered!\n");
 	fflush(stdout);
 	struct timeval waiting_start_tv, waiting_end_tv, turnaround_start_tv, turnaround_end_tv;
 	double waiting_time = 0.0, turnaround_time = 0.0;
@@ -10,19 +9,14 @@ void* C1_task(void* param)
 	long long sum = 0;
 	srand(time(NULL));
 	
+	// get time to calculate WT and TAT
 	gettimeofday(&turnaround_start_tv, NULL);
 	gettimeofday(&waiting_start_tv, NULL);
-	// printf("before wait\n");
 	sem_wait(c1.mutex);
-	// printf("after wait\n");
-	// pthread_mutex_lock(c1.lock);
-	// pthread_cond_wait(c1.cond, c1.lock);
 	gettimeofday(&waiting_end_tv, NULL);
 	waiting_time += (waiting_end_tv.tv_sec - waiting_start_tv.tv_sec) + (double)(waiting_end_tv.tv_usec - waiting_start_tv.tv_usec)/1000000;
 
-	// printf("Enter the value of work_load 1: ");
-	// scanf("%d", &(c1.work_load));
-	
+	// calculating sum
 	for (int i = 0; i < c1.work_load; i++) {
 		sum += rand();
 	}
@@ -34,14 +28,10 @@ void* C1_task(void* param)
 	FILE *file = fopen("C1_FCFS.csv", "a");
 	fprintf(file, "%d,%lf,%lf\n", c1.work_load, turnaround_time, waiting_time);
 	fclose(file);
-	// printf("C1 before mutex unlock done\n");
-	// dup2(c1.pfds[WRITE],1);
 	open(c1.pfds[WRITE]);
-	// close(c1.pfds[READ]);
+	close(c1.pfds[READ]);
 	write(c1.pfds[WRITE], &sum, sizeof(long long int));
 	close(c1.pfds[WRITE]);
-	// pthread_mutex_unlock(c1.lock);
-	// printf("C1 done\n");
 	fflush(stdout);
 	pthread_exit(0);
 }

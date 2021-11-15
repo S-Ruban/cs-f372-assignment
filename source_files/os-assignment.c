@@ -14,13 +14,13 @@ struct timeval start;
 		workload for C1, C2, C3
 */
 
-int main(int argc, char **argv)
+int main(/*int argc, char **argv*/)
 {
 	int pfds[3][2];
 	int* shared_memory;
 	int status, choice;
 	pthread_t task_tid_c1, task_tid_c2, task_tid_c3;
-	shared_memory = shmat(shmget(ftok("os-assignment.c", 0x45), 9, 0666 | IPC_CREAT), 0, 0);
+	shared_memory = shmat(shmget(ftok("os-assignment.c", 0x45), 9, 0666 | IPC_CREAT), 0, 0); // creating shared memory
 	/* 
 		shared_memory[0..2]: state of the thread
 		shared_memory[3..5]:
@@ -45,20 +45,20 @@ int main(int argc, char **argv)
 		pipe(pfds[i]);
 	}
 
-	// printf("1. First Come First Serve Scheduling (FCFS)\n2. Round Robin Scheduling (RR)\n\nEnter your choice : ");
-	// scanf("%d", &choice);
-	// printf("Enter the value of n1 n2 n3: ");
-	// scanf("%d %d %d", &n1, &n2, &n3);
-	// if (choice == 2) {
-	// 	printf("Enter time quantum (in microseconds)\n");
-	// 	scanf("%d", &time_quantum);
-	// }
-	// printf("\n");
+	printf("1. First Come First Serve Scheduling (FCFS)\n2. Round Robin Scheduling (RR)\n\nEnter your choice : ");
+	scanf("%d", &choice);
+	printf("Enter the value of n1 n2 n3: ");
+	scanf("%d %d %d", &n1, &n2, &n3);
+	if (choice == 2) {
+		printf("Enter time quantum (in microseconds)\n");
+		scanf("%d", &time_quantum);
+	}
+	printf("\n");
 	
 	gettimeofday(&program_start, NULL);
 
-	choice = atoi(argv[1]);
-	n1 = n2 = n3 = atoi(argv[2]);
+	// choice = atoi(argv[1]);
+	// n1 = n2 = n3 = atoi(argv[2]);
 
 	if (fork())
 	{
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 		{
 			if (fork())
 			{
-				// M
+				// Main process
 				char buffer[30];
 				if (choice == 1)
 				{
@@ -78,6 +78,7 @@ int main(int argc, char **argv)
 						open(pfds[i][READ]);
 						close(pfds[i][WRITE]);
 						long long int temp = 0;
+						// printing result from child prcoesses
 						if (i == 1)
 						{
 							read(pfds[i][READ], buffer, 30);
@@ -95,6 +96,7 @@ int main(int argc, char **argv)
 				else if (choice == 2) 
 				{
 					// RR
+					// while all processes are not finished, keep running while
 					while (shared_memory[3] | shared_memory[4] | shared_memory[5])
 					{
 						for (int i = 0; i < 3; i++) 
@@ -102,9 +104,13 @@ int main(int argc, char **argv)
 							if (shared_memory[i + 3] == 1)
 							{
 								shared_memory[i] = 0;
+								
+								// print time since start of program
 								gettimeofday(&start, NULL);
 								double current_time = (double)(start.tv_sec - program_start.tv_sec) + (double)(start.tv_usec - program_start.tv_usec)/1000000;
 								printf("C%d starts at %lf\n", i + 1, current_time);
+								
+								// sleep for time_quantum after time_quantum is over
 								usleep(time_quantum);
 								shared_memory[i] = 1;
 							}
@@ -115,6 +121,7 @@ int main(int argc, char **argv)
 							}
 						}
 					}
+					// print results
 					for (int i = 0; i < 3; i++) {
 						open(pfds[i][READ]);
 						close(pfds[i][WRITE]);
@@ -141,6 +148,7 @@ int main(int argc, char **argv)
 			} 
 			else
 			{
+				// C3 process, initializing attributes
 				thread_args thread_3_args;
 				thread_3_args.work_load = n3;
 				thread_3_args.filename = "randnums.txt";
@@ -150,18 +158,20 @@ int main(int argc, char **argv)
 				sem_init(&mutex[2], 0, 0);
 				thread_3_args.shared_memory = &shared_memory[8];
 
-				if (choice == 1)
+				if (choice == 1) // C3 FCFS
 				{
 					pthread_create(&task_tid_c3, NULL, C3_task, (void*)&thread_3_args);
 					while (shared_memory[2]);
+					
 					gettimeofday(&C3_start, NULL);
 					double C3_current_time = (double)(C3_start.tv_sec - program_start.tv_sec) + (double)(C3_start.tv_usec - program_start.tv_usec)/1000000;
 					printf("C3 starts at %lf\n", C3_current_time);
+					
 					sem_post(&mutex[2]);
 					pthread_join(task_tid_c3, NULL);
 					shared_memory[5] = 0;
 				}
-				else if (choice == 2)
+				else if (choice == 2) // C3 RR
 				{
 					pthread_create(&task_tid_c3, NULL, C3_task_RR, (void*)&thread_3_args);
 					int temp3 = 0;
@@ -169,7 +179,7 @@ int main(int argc, char **argv)
 					{
 						if (!shared_memory[2])
 						{
-							// C3 can continue execution after post is executed
+							// signal C3 semaphore
 							sem_post(&mutex[2]);
 						}
 						else
@@ -184,6 +194,7 @@ int main(int argc, char **argv)
 		}
 		else
 		{
+			// C2 process, initializing attributes
 			thread_args thread_2_args;
 			thread_2_args.work_load = n2;
 			thread_2_args.filename = "randnums.txt";
@@ -192,7 +203,8 @@ int main(int argc, char **argv)
 			thread_2_args.mutex = &mutex[1];
 			sem_init(&mutex[1], 0, 0);
 			thread_2_args.shared_memory = &shared_memory[7];
-			if (choice == 1) 
+
+			if (choice == 1) // C2 FCFS
 			{
 				pthread_create(&task_tid_c2, NULL, C2_task, (void*)&thread_2_args);
 				while (shared_memory[1]);
@@ -203,7 +215,7 @@ int main(int argc, char **argv)
 				pthread_join(task_tid_c2, NULL);
 				shared_memory[4] = 0;
 			}
-			else if (choice == 2) 
+			else if (choice == 2) // C2 RR
 			{
 				pthread_create(&task_tid_c2, NULL, C2_task_RR, (void*)&thread_2_args);
 				int temp2 = 0;
@@ -225,6 +237,7 @@ int main(int argc, char **argv)
 	}
 	else 
 	{
+		// C1 process, initializing attributes
 		thread_args thread_1_args;
 		thread_1_args.work_load = n1;
 		thread_1_args.filename = "randnums.txt";
@@ -234,7 +247,7 @@ int main(int argc, char **argv)
 		sem_init(&mutex[0], 0, 0);
 		thread_1_args.shared_memory = &shared_memory[6];
 
-		if (choice == 1)
+		if (choice == 1) // C1 FCFS
 		{
 			pthread_create(&task_tid_c1, NULL, C1_task, (void*)&thread_1_args);
 			while (shared_memory[0]);
@@ -245,7 +258,7 @@ int main(int argc, char **argv)
 			pthread_join(task_tid_c1, NULL);
 			shared_memory[3] = 0;
 		}
-		else if (choice == 2)
+		else if (choice == 2) // C1 RR
 		{
 			pthread_create(&task_tid_c1, NULL, C1_task_RR, (void*)&thread_1_args);
 			int temp1 = 0;
