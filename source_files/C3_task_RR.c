@@ -39,7 +39,8 @@ void* C3_task_RR(void* param)
 	fprintf(file, "%d,%lf,%lf\n", c3.work_load, turnaround_time, waiting_time);
 	fclose(file);
 
-	close(c3.pfds[READ]);
+	open(c3.pfds[WRITE]);
+	// close(c3.pfds[READ]);
 	write(c3.pfds[WRITE], &sum, sizeof(long long int));
 	close(c3.pfds[WRITE]);
 	*c3.shared_memory = 2;

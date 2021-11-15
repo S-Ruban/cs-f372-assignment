@@ -2,6 +2,8 @@
 
 void* C2_task(void* param)
 {
+	printf("C2 entered!\n");
+	fflush(stdout);
 	struct timeval waiting_start_tv, waiting_end_tv, turnaround_start_tv, turnaround_end_tv;
 	double waiting_time = 0.0, turnaround_time = 0.0;
 	thread_args c2 = *(thread_args*)param;
@@ -21,6 +23,7 @@ void* C2_task(void* param)
 	FILE* file = fopen(c2.filename, "r");
 	while (fgets(str, 20, file) != NULL && n--) {
 		printf("%s", str);
+		fflush(stdout);
 	}
 	fclose(file);
 	gettimeofday(&turnaround_end_tv, NULL);
@@ -32,10 +35,13 @@ void* C2_task(void* param)
 	fprintf(file, "%d,%lf,%lf\n", c2.work_load, turnaround_time, waiting_time);
 	fclose(file);
 
-	dup2(c2.pfds[WRITE], 1);
-	close(c2.pfds[READ]);
+	// dup2(c2.pfds[WRITE], 1);
+	open(c2.pfds[WRITE]);
+	// close(c2.pfds[READ]);
 	write(c2.pfds[WRITE], "Done Printing\n", 14);
 	close(c2.pfds[WRITE]);
 	pthread_mutex_unlock(c2.lock);
+	printf("C2 done\n");
 	pthread_exit(0);
+
 }

@@ -25,6 +25,7 @@ void* C2_task_RR(void* param)
 		waiting_time += (waiting_end_tv.tv_sec - waiting_start_tv.tv_sec) + (double)(waiting_end_tv.tv_usec - waiting_start_tv.tv_usec)/1000000;
 		
 		printf("%s", str);
+		fflush(stdout);
 		pthread_mutex_unlock(c2.lock);
 	}
 	fclose(file);
@@ -37,7 +38,8 @@ void* C2_task_RR(void* param)
 	fprintf(file, "%d,%lf,%lf\n", c2.work_load, turnaround_time, waiting_time);
 	fclose(file);
 	
-	close(c2.pfds[READ]);
+	open(c2.pfds[WRITE]);
+	// close(c2.pfds[READ]);
 	write(c2.pfds[WRITE], "Done Printing", 14);
 	close(c2.pfds[WRITE]);
 	*c2.shared_memory = 2;

@@ -2,6 +2,8 @@
 
 void* C1_task(void* param)
 {
+	printf("C1 entered!\n");
+	fflush(stdout);
 	struct timeval waiting_start_tv, waiting_end_tv, turnaround_start_tv, turnaround_end_tv;
 	double waiting_time = 0.0, turnaround_time = 0.0;
 	thread_args c1 = *(thread_args*)param;
@@ -29,11 +31,14 @@ void* C1_task(void* param)
 	FILE *file = fopen("C1_FCFS.csv", "a");
 	fprintf(file, "%d,%lf,%lf\n", c1.work_load, turnaround_time, waiting_time);
 	fclose(file);
-
-	dup2(c1.pfds[WRITE],1);
-	close(c1.pfds[READ]);
+	// printf("C1 before mutex unlock done\n");
+	// dup2(c1.pfds[WRITE],1);
+	open(c1.pfds[WRITE]);
+	// close(c1.pfds[READ]);
 	write(c1.pfds[WRITE], &sum, sizeof(long long int));
 	close(c1.pfds[WRITE]);
 	pthread_mutex_unlock(c1.lock);
+	printf("C1 done\n");
+	fflush(stdout);
 	pthread_exit(0);
 }
