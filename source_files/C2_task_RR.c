@@ -1,7 +1,9 @@
 #include "./../header_files/tasks.h"
 void* C2_task_RR(void* param)
 {
-	printf("Entering C2\n");
+	// printf("Entering C2\n");
+	// extern bool time_C2;
+	extern struct timeval program_start;
 	struct timeval waiting_start_tv, waiting_end_tv, turnaround_start_tv, turnaround_end_tv;
 	double waiting_time = 0.0, turnaround_time = 0.0;
 	thread_args c2 = *(thread_args*)param;
@@ -9,12 +11,12 @@ void* C2_task_RR(void* param)
 	int n = c2.work_load;
 
 	gettimeofday(&turnaround_start_tv, NULL);
-	gettimeofday(&waiting_start_tv, NULL);
+	// gettimeofday(&waiting_start_tv, NULL);
 	// pthread_mutex_lock(c2.lock);
 	// pthread_cond_wait(c2.cond, c2.lock);
-	sem_wait(c2.mutex);
-	gettimeofday(&waiting_end_tv, NULL);
-	waiting_time += (waiting_end_tv.tv_sec - waiting_start_tv.tv_sec) + (double)(waiting_end_tv.tv_usec - waiting_start_tv.tv_usec)/1000000;
+	// sem_wait(c2.mutex);
+	// gettimeofday(&waiting_end_tv, NULL);
+	// waiting_time += (waiting_end_tv.tv_sec - waiting_start_tv.tv_sec) + (double)(waiting_end_tv.tv_usec - waiting_start_tv.tv_usec)/1000000;
 
 	// pthread_mutex_unlock(c2.lock);
 	
@@ -24,6 +26,13 @@ void* C2_task_RR(void* param)
 		// pthread_mutex_lock(c2.lock);
 		// pthread_cond_wait(c2.cond, c2.lock);
 		sem_wait(c2.mutex);
+		// if (time_C2)
+		// {
+		// 	time_C2 = false;
+		// 	gettimeofday(&C2_start, NULL);
+		// 	double C2_current_time = (double)(C2_start.tv_sec - program_start.tv_sec) + (double)(C2_start.tv_usec - program_start.tv_usec)/1000000;
+		// 	printf("C2 starts at %lf\n", C2_current_time);
+		// }
 		gettimeofday(&waiting_end_tv, NULL);
 		waiting_time += (waiting_end_tv.tv_sec - waiting_start_tv.tv_sec) + (double)(waiting_end_tv.tv_usec - waiting_start_tv.tv_usec)/1000000;
 		// printf("In C2\n");
@@ -41,13 +50,13 @@ void* C2_task_RR(void* param)
 	fprintf(file, "%d,%lf,%lf\n", c2.work_load, turnaround_time, waiting_time);
 	fclose(file);
 
-	printf("C2 end\n");
+	// printf("C2 end\n");
 	
 	open(c2.pfds[WRITE]);
 	close(c2.pfds[READ]);
 	write(c2.pfds[WRITE], "Done Printing", 14);
 	close(c2.pfds[WRITE]);
 	*c2.shared_memory = 1;
-	printf("Exiting C2\n");
+	// printf("Exiting C2\n");
 	pthread_exit(0);
 }

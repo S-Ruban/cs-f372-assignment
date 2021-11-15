@@ -2,7 +2,7 @@
 
 void* C3_task(void* param)
 {
-	printf("C3 entered!");
+	// printf("C3 entered!");
 	fflush(stdout);
 	struct timeval waiting_start_tv, waiting_end_tv, turnaround_start_tv, turnaround_end_tv;
 	double waiting_time = 0.0, turnaround_time = 0.0;
@@ -43,6 +43,6 @@ void* C3_task(void* param)
 	write(c3.pfds[WRITE], &sum, sizeof(long long int));
 	close(c3.pfds[WRITE]);
 	// pthread_mutex_unlock(c3.lock);
-	printf("C3 done\n");
+	// printf("C3 done\n");
 	pthread_exit(0);
 }

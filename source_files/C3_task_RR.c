@@ -2,7 +2,9 @@
 
 void* C3_task_RR(void* param)
 {
-	printf("Entering C3\n");
+	// printf("Entering C3\n");
+	// extern bool time_C3;
+	extern struct timeval program_start;
 	struct timeval waiting_start_tv, waiting_end_tv, turnaround_start_tv, turnaround_end_tv;
 	double waiting_time = 0.0, turnaround_time = 0.0;
 	thread_args c3 = *(thread_args*)param;
@@ -10,13 +12,13 @@ void* C3_task_RR(void* param)
 	int n = c3.work_load;
 
 	gettimeofday(&turnaround_start_tv, NULL);
-	gettimeofday(&waiting_start_tv, NULL);
+	// gettimeofday(&waiting_start_tv, NULL);
 	// pthread_mutex_lock(c3.lock);
 	// pthread_cond_wait(c3.cond, c3.lock);
-	sem_wait(c3.mutex);
+	// sem_wait(c3.mutex);
 	// printf("C3: wait over\n");
-	gettimeofday(&waiting_end_tv, NULL);
-	waiting_time += (waiting_end_tv.tv_sec - waiting_start_tv.tv_sec) + (double)(waiting_end_tv.tv_usec - waiting_start_tv.tv_usec)/1000000;
+	// gettimeofday(&waiting_end_tv, NULL);
+	// waiting_time += (waiting_end_tv.tv_sec - waiting_start_tv.tv_sec) + (double)(waiting_end_tv.tv_usec - waiting_start_tv.tv_usec)/1000000;
 
 	// pthread_mutex_unlock(c3.lock);
 	
@@ -27,6 +29,14 @@ void* C3_task_RR(void* param)
 		// pthread_cond_wait(c3.cond, c3.lock);
 		sem_wait(c3.mutex);
 		gettimeofday(&waiting_end_tv, NULL);
+		// if (time_C3)
+		// {
+		// 	time_C3 = false;
+		// 	gettimeofday(&C3_start, NULL);
+		// 	double C3_current_time = (double)(C3_start.tv_sec - program_start.tv_sec) + (double)(C3_start.tv_usec - program_start.tv_usec)/1000000;
+		// 	printf("C3 starts at %lf\n", C3_current_time);
+		// }
+
 		waiting_time += (waiting_end_tv.tv_sec - waiting_start_tv.tv_sec) + (double)(waiting_end_tv.tv_usec - waiting_start_tv.tv_usec)/1000000;
 		// printf("In C3\n");
 		fscanf(file, "%lld", &i);
@@ -43,13 +53,13 @@ void* C3_task_RR(void* param)
 	fprintf(file, "%d,%lf,%lf\n", c3.work_load, turnaround_time, waiting_time);
 	fclose(file);
 
-	printf("C3 end\n");
+	// printf("C3 end\n");
 
 	open(c3.pfds[WRITE]);
 	close(c3.pfds[READ]);
 	write(c3.pfds[WRITE], &sum, sizeof(long long int));
 	close(c3.pfds[WRITE]);
 	*c3.shared_memory = 1;
-	printf("Exiting C3\n");
+	// printf("Exiting C3\n");
 	pthread_exit(0);
 }

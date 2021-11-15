@@ -2,7 +2,7 @@
 
 void* C2_task(void* param)
 {
-	printf("C2 entered!\n");
+	// printf("C2 entered!\n");
 	fflush(stdout);
 	struct timeval waiting_start_tv, waiting_end_tv, turnaround_start_tv, turnaround_end_tv;
 	double waiting_time = 0.0, turnaround_time = 0.0;
@@ -42,7 +42,7 @@ void* C2_task(void* param)
 	write(c2.pfds[WRITE], "Done Printing\n", 14);
 	close(c2.pfds[WRITE]);
 	// pthread_mutex_unlock(c2.lock);
-	printf("C2 done\n");
+	// printf("C2 done\n");
 	pthread_exit(0);
 
 }
