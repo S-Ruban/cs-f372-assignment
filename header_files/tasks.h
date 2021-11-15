@@ -9,6 +9,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <wait.h>
+#include <semaphore.h>
 
 #define READ 0
 #define WRITE 1
@@ -16,8 +17,8 @@
 #ifndef INCLUDE_GUARD_functions /* Include guard */
 #define INCLUDE_GUARD_functions
 
-extern pthread_mutex_t lock;
-extern pthread_cond_t cond[3];
+// extern pthread_mutex_t lock;
+// extern pthread_cond_t cond[3];
 
 typedef struct thread_args {
 	int work_load;
@@ -26,8 +27,9 @@ typedef struct thread_args {
 	int *shared_memory;
 	double total_time;
 	clock_t start_time, end_time;
-	pthread_mutex_t* lock;
-	pthread_cond_t* cond;
+	// pthread_mutex_t* lock;
+	// pthread_cond_t* cond;
+	sem_t* mutex;
 
 } thread_args;
 

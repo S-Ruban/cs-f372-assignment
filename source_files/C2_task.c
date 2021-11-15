@@ -12,8 +12,9 @@ void* C2_task(void* param)
 
 	gettimeofday(&turnaround_start_tv, NULL);
 	gettimeofday(&waiting_start_tv, NULL);
-	pthread_mutex_lock(c2.lock);
-	pthread_cond_wait(c2.cond, c2.lock);
+	// pthread_mutex_lock(c2.lock);
+	// pthread_cond_wait(c2.cond, c2.lock);
+	sem_wait(c2.mutex);
 	gettimeofday(&waiting_end_tv, NULL);
 	waiting_time += (waiting_end_tv.tv_sec - waiting_start_tv.tv_sec) + (double)(waiting_end_tv.tv_usec - waiting_start_tv.tv_usec)/1000000;
 
@@ -40,7 +41,7 @@ void* C2_task(void* param)
 	// close(c2.pfds[READ]);
 	write(c2.pfds[WRITE], "Done Printing\n", 14);
 	close(c2.pfds[WRITE]);
-	pthread_mutex_unlock(c2.lock);
+	// pthread_mutex_unlock(c2.lock);
 	printf("C2 done\n");
 	pthread_exit(0);
 

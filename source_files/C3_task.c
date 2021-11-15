@@ -12,8 +12,9 @@ void* C3_task(void* param)
 
 	gettimeofday(&turnaround_start_tv, NULL);
 	gettimeofday(&waiting_start_tv, NULL);
-	pthread_mutex_lock(c3.lock);
-	pthread_cond_wait(c3.cond, c3.lock);
+	// pthread_mutex_lock(c3.lock);
+	// pthread_cond_wait(c3.cond, c3.lock);
+	sem_wait(c3.mutex);
 	gettimeofday(&waiting_end_tv, NULL);
 	waiting_time += (waiting_end_tv.tv_sec - waiting_start_tv.tv_sec) + (double)(waiting_end_tv.tv_usec - waiting_start_tv.tv_usec)/1000000;
 
@@ -41,7 +42,7 @@ void* C3_task(void* param)
 	// close(c3.pfds[READ]);
 	write(c3.pfds[WRITE], &sum, sizeof(long long int));
 	close(c3.pfds[WRITE]);
-	pthread_mutex_unlock(c3.lock);
+	// pthread_mutex_unlock(c3.lock);
 	printf("C3 done\n");
 	pthread_exit(0);
 }
