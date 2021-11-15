@@ -1,8 +1,5 @@
 #include "./../header_files/tasks.h"
 
-// pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-// pthread_cond_t cond[3] = { PTHREAD_COND_INITIALIZER, PTHREAD_COND_INITIALIZER, PTHREAD_COND_INITIALIZER };
-
 sem_t mutex[3];
 int n1, n2, n3, time_quantum;
 struct timeval start;
@@ -149,9 +146,6 @@ int main(int argc, char **argv)
 				thread_3_args.filename = "randnums.txt";
 				thread_3_args.pfds[READ] = pfds[2][READ];
 				thread_3_args.pfds[WRITE] = pfds[2][WRITE];
-				// thread_3_args.on = &shared_memory[2];
-				// thread_3_args.lock = &lock;
-				// thread_3_args.cond = &cond[2];
 				thread_3_args.mutex = &mutex[2];
 				sem_init(&mutex[2], 0, 0);
 				thread_3_args.shared_memory = &shared_memory[8];
@@ -160,12 +154,10 @@ int main(int argc, char **argv)
 				{
 					pthread_create(&task_tid_c3, NULL, C3_task, (void*)&thread_3_args);
 					while (shared_memory[2]);
-					// usleep(50000);
 					gettimeofday(&C3_start, NULL);
 					double C3_current_time = (double)(C3_start.tv_sec - program_start.tv_sec) + (double)(C3_start.tv_usec - program_start.tv_usec)/1000000;
 					printf("C3 starts at %lf\n", C3_current_time);
 					sem_post(&mutex[2]);
-					// pthread_cond_signal(&cond[2]);
 					pthread_join(task_tid_c3, NULL);
 					shared_memory[5] = 0;
 				}
@@ -177,27 +169,16 @@ int main(int argc, char **argv)
 					{
 						if (!shared_memory[2])
 						{
-							// if (temp3) {
-							// 	temp3 = 0;
-							// 	time_C3 = true;
-							// }
-							// pthread_cond_signal(&cond[2]);
-							// printf("Signalling for C3\n");
+							// C3 can continue execution after post is executed
 							sem_post(&mutex[2]);
-							// usleep(1000);
 						}
 						else
 						{
-							// printf("C3 before sleep\n");
 							usleep(time_quantum);
-							// time_C3 = true;
-							// temp3 = 1;
-							// printf("C3 after sleep\n");
 						}
 					}
 					pthread_join(task_tid_c3, NULL);
 					shared_memory[5] = 0;
-					// printf("C3: %d\n", shared_memory[5]);
 				}
 			}
 		}
@@ -208,9 +189,6 @@ int main(int argc, char **argv)
 			thread_2_args.filename = "randnums.txt";
 			thread_2_args.pfds[READ] = pfds[1][READ];
 			thread_2_args.pfds[WRITE] = pfds[1][WRITE];
-			// thread_2_args.on = &shared_memory[1];
-			// thread_2_args.lock = &lock;
-			// thread_2_args.cond = &cond[1];
 			thread_2_args.mutex = &mutex[1];
 			sem_init(&mutex[1], 0, 0);
 			thread_2_args.shared_memory = &shared_memory[7];
@@ -218,12 +196,10 @@ int main(int argc, char **argv)
 			{
 				pthread_create(&task_tid_c2, NULL, C2_task, (void*)&thread_2_args);
 				while (shared_memory[1]);
-				// usleep(50000);
 				gettimeofday(&C2_start, NULL);
 				double C2_current_time = (double)(C2_start.tv_sec - program_start.tv_sec) + (double)(C2_start.tv_usec - program_start.tv_usec)/1000000;
 				printf("C2 starts at %lf\n", C2_current_time);
 				sem_post(&mutex[1]);
-				// pthread_cond_signal(&cond[1]);
 				pthread_join(task_tid_c2, NULL);
 				shared_memory[4] = 0;
 			}
@@ -235,28 +211,15 @@ int main(int argc, char **argv)
 				{
 					if (!shared_memory[1]) 
 					{
-						// pthread_cond_signal(&cond[1]);
-						// printf("Signalling for C2\n");
-						// if (temp2) {
-						// 	temp2 = 0;
-						// 	time_C2 = true;
-						// }
 						sem_post(&mutex[1]);
-						// usleep(1000);
 					}
 					else 
 					{
-						// printf("C2 before sleep\n");
 						usleep(time_quantum);
-						// time_C2 = true;
-						// temp2 = 1;
-						// printf("C2 after sleep\n");
 					}
 				}
-				// printf("C2 done\n");
 				pthread_join(task_tid_c2, NULL);
 				shared_memory[4] = 0;
-				// printf("C2: %d\n", shared_memory[4]);
 			}
 		}
 	}
@@ -267,9 +230,6 @@ int main(int argc, char **argv)
 		thread_1_args.filename = "randnums.txt";
 		thread_1_args.pfds[READ] = pfds[0][READ];
 		thread_1_args.pfds[WRITE] = pfds[0][WRITE];
-		// thread_1_args.on = &shared_memory[0];
-		// thread_1_args.lock = &lock;
-		// thread_1_args.cond = &cond[0];
 		thread_1_args.mutex = &mutex[0];
 		sem_init(&mutex[0], 0, 0);
 		thread_1_args.shared_memory = &shared_memory[6];
@@ -278,48 +238,30 @@ int main(int argc, char **argv)
 		{
 			pthread_create(&task_tid_c1, NULL, C1_task, (void*)&thread_1_args);
 			while (shared_memory[0]);
-			// usleep(50000);
 			gettimeofday(&C1_start, NULL);
 			double C1_current_time = (double)(C1_start.tv_sec - program_start.tv_sec) + (double)(C1_start.tv_usec - program_start.tv_usec)/1000000;
 			printf("C1 starts at %lf\n", C1_current_time);
 			sem_post(&mutex[0]);
-			// pthread_cond_signal(&cond[0]);
 			pthread_join(task_tid_c1, NULL);
 			shared_memory[3] = 0;
 		}
 		else if (choice == 2)
 		{
 			pthread_create(&task_tid_c1, NULL, C1_task_RR, (void*)&thread_1_args);
-			// printf("%lf\n",x);
 			int temp1 = 0;
 			while (shared_memory[6] != 1)
 			{
 				if (!shared_memory[0])
 				{
-					// if (temp1) {
-					// 	temp1 = 0;
-					// 	time_C1 = true;
-					// }
-					// printf("Signalling for C1\n");
-					// printf("before post\n");
 					sem_post(&mutex[0]);
-					// usleep(1000);
-					// printf("after post\n");
-					// pthread_cond_signal(&cond[0]);
 				}
 				else 
 				{
-					// printf("Here\n");
-					// printf("C1 before sleep\n");
 					usleep(time_quantum);
-					// time_C1 = true;
-					// temp1 = 1;
-					// printf("C1 after sleep\n");
 				}
 			}
 			pthread_join(task_tid_c1, NULL);
 			shared_memory[3] = 0;
-			// printf("C1: %d\n", shared_memory[3]);
 		}
 	}
 }
