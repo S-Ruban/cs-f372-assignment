@@ -28,9 +28,6 @@
 #ifndef INCLUDE_GUARD_functions /* Include guard */
 #define INCLUDE_GUARD_functions
 
-// extern pthread_mutex_t lock;
-// extern pthread_cond_t cond[3];
-// bool time_C1, time_C2, time_C3;
 struct timeval program_start, C1_start, C2_start, C3_start;
 
 typedef struct thread_args {
@@ -40,8 +37,6 @@ typedef struct thread_args {
 	int *shared_memory;
 	double total_time;
 	clock_t start_time, end_time;
-	// pthread_mutex_t* lock;
-	// pthread_cond_t* cond;
 	sem_t* mutex;
 } thread_args;
 

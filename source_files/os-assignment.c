@@ -47,6 +47,11 @@ int main(/*int argc, char **argv*/)
 
 	printf("1. First Come First Serve Scheduling (FCFS)\n2. Round Robin Scheduling (RR)\n\nEnter your choice : ");
 	scanf("%d", &choice);
+	if (choice != 1 && choice != 2)
+	{
+		printf("Invalid choice, exiting. (Enter either 1 or 2)\n\n");
+		return 0;
+	}
 	printf("Enter the value of n1 n2 n3: ");
 	scanf("%d %d %d", &n1, &n2, &n3);
 	if (choice == 2) {
@@ -73,8 +78,8 @@ int main(/*int argc, char **argv*/)
 					// FCFS
 					for (int i = 0; i < 3; i++)
 					{
-						shared_memory[i] = 0;
-						wait(&status);
+						shared_memory[i] = 0; // since shared memory is set to 0, process (i + 1) can start execution
+						wait(&status); // wait for the process to finish execution
 						open(pfds[i][READ]);
 						close(pfds[i][WRITE]);
 						long long int temp = 0;
@@ -87,23 +92,23 @@ int main(/*int argc, char **argv*/)
 						else
 						{
 							read(pfds[i][READ], &temp, sizeof(long long int));
-							printf("Reading result from C%d pipe: %lld\n", i, temp);
+							printf("Reading result from C%d pipe: %lld\n\n", i, temp);
 						}
 						close(pfds[i][READ]);
-						shared_memory[i] = 1;
+						shared_memory[i] = 1; // process (i + 1) does not need to execute anymore
 					}
 				}
-				else if (choice == 2) 
+				else 
 				{
 					// RR
-					// while all processes are not finished, keep running while
+					// while all processes are not finished, keep executing while loop
 					while (shared_memory[3] | shared_memory[4] | shared_memory[5])
 					{
-						for (int i = 0; i < 3; i++) 
+						for (int i = 0; i < 3; i++) // switching between the 3 processes
 						{
-							if (shared_memory[i + 3] == 1)
+							if (shared_memory[i + 3] == 1) // check if current process has not finished
 							{
-								shared_memory[i] = 0;
+								shared_memory[i] = 0; // current process can execute now
 								
 								// print time since start of program
 								gettimeofday(&start, NULL);
@@ -114,10 +119,10 @@ int main(/*int argc, char **argv*/)
 								usleep(time_quantum);
 								shared_memory[i] = 1;
 							}
-							else if (shared_memory[i] != 2 && shared_memory[i + 3] == 0)
+							else if (shared_memory[i] != 2 && shared_memory[i + 3] == 0) // process (i + 1) comlpeted task
 							{
-								shared_memory[i] = 2;
-								wait(&status);
+								shared_memory[i] = 2; // set process (i + 1) to be completed
+								wait(&status); // wait for process to end
 							}
 						}
 					}
@@ -139,10 +144,6 @@ int main(/*int argc, char **argv*/)
 						close(pfds[i][READ]);
 					}
 				}
-				else 
-				{
-					printf("Invalid choice, exiting. (Enter either 1 or 2)\n\n");
-				}
 				shmdt((void *)shared_memory);
 				return 0;
 			} 
@@ -161,33 +162,37 @@ int main(/*int argc, char **argv*/)
 				if (choice == 1) // C3 FCFS
 				{
 					pthread_create(&task_tid_c3, NULL, C3_task, (void*)&thread_3_args);
-					while (shared_memory[2]);
+
+					// monitor thread
+					while (shared_memory[2]); // monitor thread waits until C3's turn comes
 					
+					// get time since program start when C3 starts execution
 					gettimeofday(&C3_start, NULL);
 					double C3_current_time = (double)(C3_start.tv_sec - program_start.tv_sec) + (double)(C3_start.tv_usec - program_start.tv_usec)/1000000;
 					printf("C3 starts at %lf\n", C3_current_time);
 					
-					sem_post(&mutex[2]);
-					pthread_join(task_tid_c3, NULL);
-					shared_memory[5] = 0;
+					sem_post(&mutex[2]); // C3's turn now, signalling semaphore
+					pthread_join(task_tid_c3, NULL); // wait for task thread to finish execution
 				}
 				else if (choice == 2) // C3 RR
 				{
 					pthread_create(&task_tid_c3, NULL, C3_task_RR, (void*)&thread_3_args);
-					int temp3 = 0;
-					while (shared_memory[8] != 1)
+
+					// monitor thread
+					while (shared_memory[8] != 1) // C3 not completed
 					{
-						if (!shared_memory[2])
+						if (!shared_memory[2]) // C3's turn to start/continue execution
 						{
 							// signal C3 semaphore
 							sem_post(&mutex[2]);
 						}
 						else
 						{
+							// C3 sleeps until it's turn
 							usleep(time_quantum);
 						}
 					}
-					pthread_join(task_tid_c3, NULL);
+					pthread_join(task_tid_c3, NULL); // wait for task thread to finish execution
 					shared_memory[5] = 0;
 				}
 			}
@@ -207,30 +212,37 @@ int main(/*int argc, char **argv*/)
 			if (choice == 1) // C2 FCFS
 			{
 				pthread_create(&task_tid_c2, NULL, C2_task, (void*)&thread_2_args);
-				while (shared_memory[1]);
+
+				// monitor thread
+				while (shared_memory[1]); // monitor thread waits until C2's turn comes
+				
+				// get time since program start when C2 starts execution
 				gettimeofday(&C2_start, NULL);
 				double C2_current_time = (double)(C2_start.tv_sec - program_start.tv_sec) + (double)(C2_start.tv_usec - program_start.tv_usec)/1000000;
 				printf("C2 starts at %lf\n", C2_current_time);
-				sem_post(&mutex[1]);
-				pthread_join(task_tid_c2, NULL);
-				shared_memory[4] = 0;
+				
+				sem_post(&mutex[1]); // C2's turn now, signalling semaphore
+				pthread_join(task_tid_c2, NULL); // wait for task thread to finish execution
 			}
 			else if (choice == 2) // C2 RR
 			{
 				pthread_create(&task_tid_c2, NULL, C2_task_RR, (void*)&thread_2_args);
-				int temp2 = 0;
-				while (shared_memory[7] != 1) 
+
+				// monitor thread
+				while (shared_memory[7] != 1) // C2 not completed
 				{
-					if (!shared_memory[1]) 
+					if (!shared_memory[1]) // C2's turn to start/continue execution
 					{
+						// signal C2 semaphore
 						sem_post(&mutex[1]);
 					}
 					else 
 					{
+						// C2 sleeps until it it's turn
 						usleep(time_quantum);
 					}
 				}
-				pthread_join(task_tid_c2, NULL);
+				pthread_join(task_tid_c2, NULL); // wait for task thread to finish execution
 				shared_memory[4] = 0;
 			}
 		}
@@ -250,30 +262,37 @@ int main(/*int argc, char **argv*/)
 		if (choice == 1) // C1 FCFS
 		{
 			pthread_create(&task_tid_c1, NULL, C1_task, (void*)&thread_1_args);
+
+			// monitor thread
 			while (shared_memory[0]);
+			
+			// get time since program start when C1 starts execution
 			gettimeofday(&C1_start, NULL);
 			double C1_current_time = (double)(C1_start.tv_sec - program_start.tv_sec) + (double)(C1_start.tv_usec - program_start.tv_usec)/1000000;
 			printf("C1 starts at %lf\n", C1_current_time);
-			sem_post(&mutex[0]);
-			pthread_join(task_tid_c1, NULL);
-			shared_memory[3] = 0;
+			
+			sem_post(&mutex[0]); // C1's turn now, signalling semaphore
+			pthread_join(task_tid_c1, NULL); // wait for task thread to finish execution
 		}
 		else if (choice == 2) // C1 RR
 		{
 			pthread_create(&task_tid_c1, NULL, C1_task_RR, (void*)&thread_1_args);
-			int temp1 = 0;
+
+			// monitor thread
 			while (shared_memory[6] != 1)
 			{
 				if (!shared_memory[0])
 				{
+					// signal C1 semaphore
 					sem_post(&mutex[0]);
 				}
 				else 
 				{
+					// C1 sleeps until it's turn
 					usleep(time_quantum);
 				}
 			}
-			pthread_join(task_tid_c1, NULL);
+			pthread_join(task_tid_c1, NULL); // wait for task thread to finish execution
 			shared_memory[3] = 0;
 		}
 	}

@@ -23,17 +23,20 @@ void* C1_task_RR(void* param)
 	gettimeofday(&turnaround_end_tv, NULL);
 	turnaround_time += (turnaround_end_tv.tv_sec - turnaround_start_tv.tv_sec) + (double)(turnaround_end_tv.tv_usec - turnaround_start_tv.tv_usec)/1000000;
 
+	// print TAT and WT for C1
 	printf("Total waiting time for C1 = %lf seconds\n", waiting_time);
 	printf("Total turnaround time for C1 = %lf seconds\n", turnaround_time);
+	
+	// writing workload, TAT and WT into csv file
 	FILE *file = fopen("C1_RR.csv", "a");
 	fprintf(file, "%d,%lf,%lf\n", c1.work_load, turnaround_time, waiting_time);
 	fclose(file);
 
 	open(c1.pfds[WRITE]);
 	close(c1.pfds[READ]);
-	write(c1.pfds[WRITE], &sum, sizeof(long long int));
+	write(c1.pfds[WRITE], &sum, sizeof(long long int)); // writing result to pipe
 	close(c1.pfds[WRITE]);
-	*c1.shared_memory = 1;
+	*c1.shared_memory = 1; // mark task as complete
 	pthread_exit(0);
 }
 
