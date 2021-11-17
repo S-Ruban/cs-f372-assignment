@@ -1,6 +1,15 @@
 # cs-f372-assignment
 CS F372 (Operating Systems) Assignment
+Emulation of **First Come First Serve (FCFS)** and **Round Robin (RR)** Scheduling Algorithms in C
 
-To run the program: 
-1. Compile using `make` in the folder that has the makefile
-2. Execute the program with `./output.out`
+#### Folders
+- **header_files**: Contains required structures, function prototypes and header files
+- **misc**: Python programs to plot points, generate numbers and a wrapper bash script to generate points
+- **points_and_graph_plots**: Contains points present in csv files and graph plots for the generated points
+- **source_files**: main program that handles FCFS and RR scheduling and thread functions that perform their tasks
+
+To run the program (works only in a Linux system): 
+1. Clone this repository into your folder
+2. Open terminal and go to the `cs-f372-assignment` folder
+3. Run `make` to compile the source_files
+4. Then execute `./output.out` to simulate the scheduling.
