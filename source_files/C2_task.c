@@ -31,9 +31,11 @@ void* C2_task(void* param)
 	printf("Total turnaround time for C2 = %lf seconds\n", turnaround_time);
 	
 	// writing workload, TAT and WT into csv file
+	/*
 	file = fopen("C2_FCFS.csv", "a");
 	fprintf(file, "%d,%lf,%lf\n", c2.work_load, turnaround_time, waiting_time);
 	fclose(file);
+	*/
 
 	open(c2.pfds[WRITE]);
 	close(c2.pfds[READ]);
