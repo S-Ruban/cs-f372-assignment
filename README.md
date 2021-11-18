@@ -13,3 +13,13 @@ To run the program (works only in a Linux system):
 2. Open terminal and go to the `cs-f372-assignment` folder
 3. Run `make` to compile the source_files
 4. Then execute `./output.out` to simulate the scheduling.
+
+### Team Members:
+1. 2019A7PS0033H - T V Chandra Vamsi 
+2. 2019A3PS0443H - Vishwas Vasuki Gautam 
+3. 2019A7PS0009H - Kaustubh Bhanj 
+4. 2019AAPS0236H - Naren Vilva 
+5. 2019A7PS0097H - Ruban S 
+6. 2019A7PS1200H - Sathvik Bhaskarpandit 
+7. 2019AAPS0345H - Shrikrishna Lolla 
+8. 2019AAPS0317H - Suraj S 
