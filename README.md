@@ -3,10 +3,10 @@ CS F372 (Operating Systems) Assignment
 Emulation of **First Come First Serve (FCFS)** and **Round Robin (RR)** Scheduling Algorithms in C
 
 ### Folders
-- **header_files**: Contains required structures, function prototypes and header files
-- **misc**: Python programs to plot points, generate numbers and a wrapper bash script to generate points
-- **points_and_graph_plots**: Contains points present in csv files and graph plots for the generated points
-- **source_files**: main program that handles FCFS and RR scheduling and thread functions that perform their tasks
+- `header_files` contains required structures, function prototypes and header files
+- `misc` contains Python programs to plot points, generate numbers and a wrapper bash script to generate points
+- `points_and_graph_plots` contains points present in csv files and graph plots for the generated points
+- `source_files` contains the main program that handles FCFS and RR scheduling and thread functions that perform their tasks
 
 To run the program (works only in a Linux system): 
 1. Clone this repository into your folder
